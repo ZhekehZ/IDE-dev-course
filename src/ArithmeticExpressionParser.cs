@@ -301,10 +301,7 @@ namespace ArithmeticExpressionParser
                 {
                     throw new ParserInvalidBrackets();
                 }
-                else
-                {
-                    ApplyBinaryOperatorToOutputStack(name, expressionStack);
-                }
+                ApplyBinaryOperatorToOutputStack(name, expressionStack);
             }
             
             if (expressionStack.Count != 1)
