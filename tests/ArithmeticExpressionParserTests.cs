@@ -76,8 +76,8 @@ namespace ArithmeticExpressionParser.Tests
         [Test]
         public void TestLongNames()
         {
-            _simpleParser.Parse("hello+(world*abc)").Accept(_visitor);
-            Assert.AreEqual("Bin(Var(hello) + Bin(Var(world) * Var(abc)))", _visitor.ToString());   
+            _simpleParser.Parse("hello+(world1*abc)").Accept(_visitor);
+            Assert.AreEqual("Bin(Var(hello) + Bin(Var(world1) * Var(abc)))", _visitor.ToString());   
         }
                 
         [Test]
@@ -148,7 +148,7 @@ namespace ArithmeticExpressionParser.Tests
         public void TestInvalidOperator()
         {
             var ex = Assert.Throws<ParserInvalidOperatorName>(() => _complexParser.Parse("a >= b").Accept(_visitor));
-            Assert.AreEqual(">>=", ex?.OperatorName);
+            Assert.AreEqual(">=", ex?.OperatorName);
             ex = Assert.Throws<ParserInvalidOperatorName>(() => _complexParser.Parse("a & b").Accept(_visitor));
             Assert.AreEqual("&", ex?.OperatorName);
         }

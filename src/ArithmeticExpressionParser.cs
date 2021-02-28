@@ -147,7 +147,7 @@ namespace ArithmeticExpressionParser
 
         private static string ReadIdentAndMovePosition(string text, ref int position)
         {
-            return ReadPredAndMovePosition(text, char.IsLetter, ref position);
+            return ReadPredAndMovePosition(text, char.IsLetterOrDigit, ref position);
         }
         
         private static string ReadNatAndMovePosition(string text, ref int position)
