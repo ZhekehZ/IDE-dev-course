@@ -5,8 +5,8 @@ namespace ArithmeticExpressionParser
     
     public delegate TOut VarargFunc<in TIn, out TOut>(params TIn[] args);
 
-    public interface ICompiler<in T, out TR>
+    public interface ICompiler<T, TR>
     {
-        public VarargFunc<T, TR> Compile(string text);
+        public (VarargFunc<T, TR>, string[]) Compile(string text);
     }
 }

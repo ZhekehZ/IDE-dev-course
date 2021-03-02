@@ -10,5 +10,8 @@ namespace ArithmeticExpressionParser
             Arity = arity;
         }
     }
-    
+
+    class CogenAssemblyException : Exception
+    {
+    }
 }

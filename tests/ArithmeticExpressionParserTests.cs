@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using NUnit.Framework;
 
@@ -170,17 +171,14 @@ namespace ArithmeticExpressionParser.Tests
         [Test]
         public void StressTest()
         {
-            var expressions = new Stack<IExpression>();
-            var random = new Random(31);
-
-            string[] operators = {"+", "*", "-", "/"};
-            string[] functions = {"const", "head", "tail"};
-
+            var gen = new RandomExpressionGenerator(37);
+            gen.SetFunctions("const", "head", "tail");
+            gen.SetOperators("+", "*", "-", "/");
+            
             var testHeadCount = 0;
-            var testHead = new Action(() =>
+            var testHead = new Action<IExpression>(ex =>
             {
-                if (expressions.Count <= 0) return;
-                expressions.Peek().Accept(_visitor);
+                ex.Accept(_visitor);
                 var expected = _visitor.ToString();
                 var toParse = expected?
                     .Replace("Lit", "")
@@ -193,55 +191,9 @@ namespace ArithmeticExpressionParser.Tests
                 Assert.AreEqual(expected, _visitor.ToString());
                 testHeadCount++;
             });
-            
-            for (var i = 0; i < 50_000; i++)
-            {
-                switch (random.Next(5))
-                {
-                    case 0:
-                        expressions.Push(new Literal(random.Next(100000).ToString()));
-                        break;
-                    case 1:
-                        const string chars = "ASDFGH";
-                        var name = new string(Enumerable.Repeat(chars, 1 + random.Next(10))
-                            .Select(s => s[random.Next(s.Length)]).ToArray());
-                        expressions.Push(new Variable(name));
-                        break;
-                    case 2:
-                        if (expressions.Count > 1)
-                        {
-                            var op = operators[random.Next(operators.Length)];
-                            expressions.Push(new BinaryExpression(
-                                op,
-                                expressions.Pop(), 
-                                expressions.Pop()));
-                        }
-                        break;
-                    case 3:
-                        var nArgs = random.Next(expressions.Count);
-                        var arguments = expressions.Take(nArgs).ToList();
-                        for (var j = 0; j < nArgs; j++)
-                        {
-                            expressions.Pop();
-                        }
 
-                        var fun = functions[random.Next(functions.Length)];
-                        expressions.Push(new FunctionCallExpression(fun, arguments));
-                        break;
-                    case 4:
-                        testHead.Invoke();
-                        break;
-                }                
-            }
-
-            while (expressions.Count > 1)
-            {
-                expressions.Push(new BinaryExpression("+", 
-                    expressions.Pop(), 
-                    expressions.Pop()));
-            }
-            testHead.Invoke();
-            
+            var e = gen.GetRandom(50_000, "+", testHead);
+            testHead(e);
             Assert.True(testHeadCount > 1000);
         }
     }

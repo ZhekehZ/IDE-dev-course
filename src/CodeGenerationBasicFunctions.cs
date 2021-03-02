@@ -37,14 +37,21 @@ namespace ArithmeticExpressionParser
         {
             var lnZ = gen.DefineLabel();
             var lFin = gen.DefineLabel();
-            
+
+            var t = gen.DeclareLocal(typeof(int));
+            var e = gen.DeclareLocal(typeof(int));
+            b();
+            gen.Emit(OpCodes.Stloc, t);
+            c();
+            gen.Emit(OpCodes.Stloc, e);
             a();
+            
             gen.Emit(OpCodes.Ldc_I4_0);
             gen.Emit(OpCodes.Beq_S, lnZ);
-            b();
+            gen.Emit(OpCodes.Ldloc, t);
             gen.Emit(OpCodes.Br_S, lFin);
             gen.MarkLabel(lnZ);
-            c();
+            gen.Emit(OpCodes.Ldloc, e);
             gen.MarkLabel(lFin);
         };
         
@@ -71,7 +78,7 @@ namespace ArithmeticExpressionParser
             gen.Emit(OpCodes.Mul);
         };
 
-        public static readonly BiFunctionGenerator Pow = (a, b, gen) =>
+        public static readonly BiFunctionGenerator Pow = (a, b, gen) => // TODO make it O(log n) 
         {
             var i = gen.DeclareLocal(typeof(int));
             var x = gen.DeclareLocal(typeof(int));

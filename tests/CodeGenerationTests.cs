@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
 
 namespace ArithmeticExpressionParser.Tests
@@ -50,7 +51,7 @@ namespace ArithmeticExpressionParser.Tests
             _compiler = new ArithmeticExpressionCompiler(_parser, _coGenVisitor);
         }
 
-        private Func<string, VarargFunc<int, int>> Compile => _compiler.Compile;
+        private Func<string, VarargFunc<int, int>> Compile => x => _compiler.Compile(x).Item1;
         
         [Test]
         public void TestPlus() {
@@ -173,11 +174,11 @@ namespace ArithmeticExpressionParser.Tests
         
                 
         [Test]
-        public void TestSamveVariable()
+        public void TestRepeatedVariable()
         {
             var f1 = Compile("a * a + 2 * a + 1");
             var f2 = Compile("sqr(inc(a))");
-            for (int i = -100; i < 100; i+=7)
+            for (var i = -100; i < 100; i+=7)
             {
                 Assert.AreEqual(0, f1(i) - f2(i));
             }
@@ -191,14 +192,14 @@ namespace ArithmeticExpressionParser.Tests
                                             "           , (inc(a) + 12) * 2" +
                                             "           , pow(c, 4) " +
                                             ")");
-            Func<int, int, int, int> eFunc = (a, b, c) => a + b * b > c * c ? (a + 1 + 12) * 2 : c * c * c * c;
+            static int ExpectedFunc(int a, int b, int c) => a + b * b > c * c ? (a + 1 + 12) * 2 : c * c * c * c;
             var random = new Random(31);
             for (int i = 0; i < 1000; i++)
             {
                 var a = random.Next(100);
                 var b = random.Next(100);
                 var c = random.Next(100);
-                Assert.AreEqual(eFunc(a, b, c), func(c, a, b), "values: " + (a, b, c));
+                Assert.AreEqual(ExpectedFunc(a, b, c), func(a, b, c), "values: " + (a, b, c));
             }
         }
         
@@ -208,6 +209,68 @@ namespace ArithmeticExpressionParser.Tests
             var e = Assert.Throws<CogenInvalidFunctionArity>(() => Compile("ifThenElse(a, b, c, d)"));
             if (e != null) Assert.AreEqual(4, e.Arity);
         }
+        
+        
+        [Test]
+        public void StressTest()
+        {
+            var gen = new RandomExpressionGenerator(37);
+            gen.SetOperators("+", "*", ">", "<");
+            gen.SetFunctionsWithFixedArity(("inc", 1), ("sqr", 1), ("ifThenElse", 3));
+
+            var expression = gen.GetRandom(50_000, "+");
+            var (compiled, argNames) = _compiler.Compile(expression);
+            var callArgs = argNames.Select(x => x.Length).ToArray();
+            Assert.AreEqual(StrangeEvalVisitor.Eval(expression), compiled(callArgs));
+        }
+
+        private class StrangeEvalVisitor : IExpressionVisitor
+        {
+            private int _value;
+
+            public static int Eval(IExpression e)
+            {
+                var visitor = new StrangeEvalVisitor();
+                e.Accept(visitor);
+                return visitor._value;
+            }
+
+            public void Visit(Literal expression)
+            {
+                _value = int.Parse(expression.Value);
+            }
+
+            public void Visit(Variable expression)
+            {
+                _value = expression.Value.Length;
+            }
+
+            public void Visit(BinaryExpression expression)
+            {
+                _value = expression.Operator switch
+                {
+                    "+" => Eval(expression.LeftOperand) + Eval(expression.RightOperand),
+                    "*" => Eval(expression.LeftOperand) * Eval(expression.RightOperand),
+                    ">" => Eval(expression.LeftOperand) > Eval(expression.RightOperand) ? 1 : 0,
+                    "<" => Eval(expression.LeftOperand) < Eval(expression.RightOperand) ? 1 : 0,
+                    _ => _value
+                };
+            }
+
+            public void Visit(FunctionCallExpression expression)
+            {
+                var args = expression.Arguments.Select(Eval).ToArray();
+
+                _value = expression.FunctionName switch
+                {
+                    "inc" => args[0] + 1,
+                    "sqr" => args[0] * args[0],
+                    "ifThenElse" => args[0] != 0 ? args[1] : args[2],
+                    _ => _value
+                };
+            }
+        }
+        
     }
     
 }

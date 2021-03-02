@@ -29,7 +29,7 @@ namespace ArithmeticExpressionParser
             _operators = operators;
         }
 
-        public Type Assembly(IExpression expression, string name, string className, string methodName)
+        public (Type, string[]) Assembly(IExpression expression, string name, string className, string methodName)
         {
             _arguments.Clear();
             var aName = new AssemblyName(name);
@@ -50,7 +50,7 @@ namespace ArithmeticExpressionParser
             _methodBuilder.SetReturnType(typeof(int));
             _methodBuilder.SetParameters(arguments);
 
-            return tb.CreateType();
+            return (tb.CreateType(), _arguments.ToArray());
         }
         
         public void Visit(Literal expression)

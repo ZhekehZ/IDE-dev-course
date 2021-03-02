@@ -1,4 +1,4 @@
-using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace ArithmeticExpressionParser
@@ -14,16 +14,37 @@ namespace ArithmeticExpressionParser
             _cogen = cogen;
         }
 
-        public VarargFunc<int, int> Compile(string s)
+        public (VarargFunc<int, int>, string[]) Compile(IExpression e)
         {
-            var type = _cogen.Assembly(_parser.Parse(s), "DAsm", "Evaluator", "eval");
-            var method = type.GetMethod("eval")!;
-            return args =>
+            var (type, argNames) = _cogen.Assembly(e, "DAsm", "Evaluator", "eval");
+
+            var sl = new SortedList<string, int>();
+            for (var i = 0; i < argNames.Length; i++)
             {
-                var objects = args.Select(x => (object)x).ToArray();
-                if (method is not null) return (int) method.Invoke(type, objects)!;
-                throw new Exception();
-            };
-        }    
+                sl.Add(argNames[i], i);
+            }
+
+            var mapping = sl.Values.ToList();
+            var invMapping = mapping.Select((_, i) => mapping.IndexOf(i)).ToArray();
+            
+            var method = type.GetMethod("eval")!;
+            if (method == null)
+            {
+                throw new CogenAssemblyException();
+            }
+            
+            var compiled = new VarargFunc<int, int>(args =>
+            {
+                var callArgs = invMapping.Select(idx => (object)args[idx]).ToArray();
+                return (int) method.Invoke(type, callArgs)!;
+            });
+            return (compiled, sl.Keys.ToArray());
+        }
+
+        public (VarargFunc<int, int>, string[]) Compile(string s)
+        {
+            return Compile(_parser.Parse(s));
+        }
+
     }
 }
