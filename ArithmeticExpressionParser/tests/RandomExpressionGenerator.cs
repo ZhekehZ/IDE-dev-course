@@ -6,9 +6,9 @@ namespace ArithmeticExpressionParser.Tests
 {
     public class RandomExpressionGenerator
     {
-        private readonly Random _random ;
-        private string[] _operators;
-        private (string, int?)[] _functions;
+        private readonly Random _random;
+        private string[] _operators = {};
+        private (string, int?)[] _functions = {};
 
         public RandomExpressionGenerator(int seed)
         {

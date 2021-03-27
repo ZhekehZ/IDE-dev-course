@@ -1,0 +1,30 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ArithmeticExpressionParser", "ArithmeticExpressionParser", "{B82EDA92-3FD9-459D-BEBC-BFBFDE42A3EE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArithmeticExpressionParser", "ArithmeticExpressionParser\ArithmeticExpressionParser.csproj", "{42CCA436-529E-4AB9-B1B1-E76D3861BFEE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PascalLexer", "PascalLexer", "{0F657FA5-C018-4CB1-B438-5DBB8278CB63}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PascalLexer", "PascalLexer\PascalLexer.csproj", "{910488B7-BF79-41CC-826B-FF8CE04905BF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{42CCA436-529E-4AB9-B1B1-E76D3861BFEE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{42CCA436-529E-4AB9-B1B1-E76D3861BFEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{42CCA436-529E-4AB9-B1B1-E76D3861BFEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{42CCA436-529E-4AB9-B1B1-E76D3861BFEE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{910488B7-BF79-41CC-826B-FF8CE04905BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{910488B7-BF79-41CC-826B-FF8CE04905BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{910488B7-BF79-41CC-826B-FF8CE04905BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{910488B7-BF79-41CC-826B-FF8CE04905BF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{42CCA436-529E-4AB9-B1B1-E76D3861BFEE} = {B82EDA92-3FD9-459D-BEBC-BFBFDE42A3EE}
+		{910488B7-BF79-41CC-826B-FF8CE04905BF} = {0F657FA5-C018-4CB1-B438-5DBB8278CB63}
+	EndGlobalSection
+EndGlobal
