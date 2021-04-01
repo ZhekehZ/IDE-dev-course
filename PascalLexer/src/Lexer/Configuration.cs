@@ -38,7 +38,9 @@ namespace PascalLexer.Lexer
         const char CommentBiOpen2 = '*';
         const char CommentBiClose1 = '*';
         const char CommentBiClose2 = ')';
-        
+        const char NewLine = '\n';
+
+        const string CommentStartSymbols = "({/";
         const string WhiteSpaceChars = " \t\n\r";
     }
 }

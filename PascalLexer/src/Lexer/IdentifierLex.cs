@@ -11,7 +11,8 @@ namespace PascalLexer.Lexer
             var len = s.Length;
 
             if (pos >= len) return Fail("Start position is out of string", pos);
-            if (!IsLetter(s[pos]) && s[pos] != Underscore && s[pos] != ReservedOverrideSymbol)
+            if (s[pos] == ReservedOverrideSymbol) pos++;
+            if (pos >= len || !IsLetter(s[pos]) && s[pos] != Underscore)
             {
                 return Fail("Identifier must start with [a-zA-Z_]", startPosition);
             }

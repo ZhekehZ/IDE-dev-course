@@ -44,7 +44,7 @@ namespace PascalLexer.tests.Lexer
         [Test]
         public void CommentStressFull()
         {
-            StressTestAll(@"[a-zA-Z0-9_\&]{0,10}", @"[a-zA-Z_\&][a-zA-Z0-9_]{0,10}");
+            StressTestAll(@"[a-zA-Z0-9_\&]{0,10}", @"(\&)?[a-zA-Z_][a-zA-Z0-9_]{0,10}");
         }
     }
 }

@@ -15,6 +15,7 @@ namespace PascalLexer.Lexer
         public abstract Status Status { get; }
         public int NextPosition => EndPosition;
         public int Length => EndPosition - StartPosition;
+        public abstract int ParsedPos { get; }
 
         public string Value => Status == Status.Ok ? OriginalString.Substring(StartPosition, Length) : "";
     }
