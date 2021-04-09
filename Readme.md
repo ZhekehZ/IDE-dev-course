@@ -1,4 +1,5 @@
-### IDE DEV COURSE
+### IDE DEV COURSE  
+[![.NET](https://github.com/ZhekehZ/IDE-dev-course/actions/workflows/dotnet.yml/badge.svg?branch=master)](https://github.com/ZhekehZ/IDE-dev-course/actions/workflows/dotnet.yml)
 
 * [ArithmeticExpressionParser](https://github.com/ZhekehZ/IDE-dev-course/tree/master/ArithmeticExpressionParser) --- parser for arithmetic expressions  
     Features: 
