@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -22,7 +21,7 @@ namespace PascalLexer.Lexer
             {
                 return Fail("Not a comment", startPosition, pos);
             }
-            
+
             if (s[pos] == LineComment)
             {
                 if (++pos >= len || s[pos] != LineComment) return Fail("Invalid comment", startPosition, pos);
@@ -44,18 +43,17 @@ namespace PascalLexer.Lexer
                         }  
                         if (stack.Count == 0) return Fail("Not a comment", startPosition, pos);
                         continue;
-                    
                     case CommentBraceClose:
-                    case NewLine:
                         if (stack.Count == 0) goto BuildFailReport;
-                        
-                        var expectedType = s[pos] == CommentBraceClose ? TokenType.Comment : TokenType.CommentLine;
-                        if (stack.Peek().Type != expectedType) continue;
-                        
+                        if (stack.Peek().Type != TokenType.Comment) continue;
                         var tokB = stack.Pop().Build(pos + 1);
                         if (stack.Count == 0) return tokB;
                         stack.Peek().AddToken(tokB);
                         continue;
+                    case NewLine:
+                        if (stack.Count == 0) goto BuildFailReport;
+                        if (stack.Last().Type != TokenType.CommentLine) continue;
+                        return stack.Last().Build(pos + 1);
                     case CommentBiClose1:
                         if (stack.Count == 0) goto BuildFailReport;
                         if (pos + 1 >= len || s[pos + 1] != CommentBiClose2) continue;
@@ -69,7 +67,7 @@ namespace PascalLexer.Lexer
             }
 
             pos = pos < len ? pos : len;
-            if (stack.Count > 0 && stack.First().Type == TokenType.CommentLine) return stack.First().Build(pos);
+            if (stack.Count > 0 && stack.Last().Type == TokenType.CommentLine) return stack.Last().Build(pos);
 
             BuildFailReport:
             if (stack.Count == 0) return Fail("Is not a comment", startPosition, pos);

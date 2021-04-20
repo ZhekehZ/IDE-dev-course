@@ -30,14 +30,16 @@ namespace PascalLexer.tests.Lexer
                 "{(***)}",
                 "{*()*}",
                 "{*)*}",
-                "//"
+                "//",
+                "// {"
             );
             
             TestAllNegativeFull(
             "c{comment}",
             "{", "}", "(*", "*)", "/", "(**+)", "{c)", "/comm/",
             "{comm", "comment",
-            "{*(*}"
+            "{*(*}",
+            "// {\n}"
             );
         }
 
