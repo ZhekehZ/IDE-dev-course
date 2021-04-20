@@ -1,0 +1,25 @@
+<idea-plugin>
+  <name>Spring Support</name>
+  <id>com.jetbrains.rider.spring</id>
+  <vendor url="https://jetbrains.com">JetBrains</vendor>
+  <description>Spring language support plugin for JetBrains Rider.</description>
+
+  <version>0.9999</version>
+  <idea-version since-build="171.3655" />
+
+  <depends>com.intellij.modules.rider</depends>
+  <extensions defaultExtensionNs="com.intellij">
+    <fileType name="Spring" language="Spring" extensions="spring" implementationClass="com.jetbrains.rider.ideaInterop.fileTypes.spring.SpringFileType" />
+    <lang.ast.factory language="Spring" implementationClass="com.jetbrains.rider.ideaInterop.fileTypes.spring.SpringAstFactory" />
+    <lang.parserDefinition language="Spring" implementationClass="com.jetbrains.rider.ideaInterop.fileTypes.spring.SpringParserDefinition" />
+
+    <lang.altEnter language="Spring" implementationClass="com.jetbrains.rider.intentions.altEnter.ReSharperBulbMenuModelFactory" />
+    <lang.syntaxHighlighterFactory language="Spring" implementationClass="com.jetbrains.rider.ideaInterop.fileTypes.spring.SpringHighlighterProvider"/>
+    <backend.markup.adapterFactory language="Spring" implementationClass="com.jetbrains.rdclient.daemon.FrontendMarkupAdapterFactory" />
+    <backend.actions.support language="Spring" implementationClass="com.jetbrains.rider.actions.RiderActionSupportPolicy" />
+  </extensions>
+
+  <actions>
+  </actions>
+
+</idea-plugin>

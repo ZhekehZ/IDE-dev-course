@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net461</TargetFramework>
+    <RootNamespace>JetBrains.ReSharper.Plugins.Spring</RootNamespace>
+    <AssemblyName>JetBrains.ReSharper.Plugins.Spring</AssemblyName>
+    <JetTestProject>True</JetTestProject>
+    <LangVersion>9</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="JetBrains.Rider.SDK" Version="$(RiderSDKVersion)" />
+    <PackageReference Include="System.ValueTuple" Version="$(ValueTupleVersion)" />
+    <PackageReference Include="NUnit.Console" Version="3.10.0" />
+  </ItemGroup>
+  <Import Project="$(DotNetSdkPath)\Build\SubplatformReference.Psi.Features_test_Framework.Props" Condition="Exists('$(DotNetSdkPath)\Build\SubplatformReference.Psi.Features_test_Framework.Props')" />
+</Project>

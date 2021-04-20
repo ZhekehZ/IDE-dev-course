@@ -1,0 +1,27 @@
+﻿Language: PsiLanguageType:Spring
+SpringFile
+  SpringBlock
+    CSharpTokenType+LbraceTokenElement(type:LBRACE, text:{)
+    Whitespace(type:WHITE_SPACE, text: ) spaces:" "
+    Identifier(type:IDENTIFIER, text:ddsds)
+    Whitespace(type:WHITE_SPACE, text: ) spaces:" "
+    SpringBlock
+      CSharpTokenType+LbraceTokenElement(type:LBRACE, text:{)
+      Whitespace(type:WHITE_SPACE, text: ) spaces:" "
+      Identifier(type:IDENTIFIER, text:dsjdkhs)
+      Whitespace(type:WHITE_SPACE, text: ) spaces:" "
+      SpringBlock
+        CSharpTokenType+LbraceTokenElement(type:LBRACE, text:{)
+        Whitespace(type:WHITE_SPACE, text: ) spaces:" "
+        CSharpGenericToken(type:INTEGER_LITERAL, text:11)
+        Whitespace(type:WHITE_SPACE, text: ) spaces:" "
+        SpringBlock
+          CSharpTokenType+LbraceTokenElement(type:LBRACE, text:{)
+          Whitespace(type:WHITE_SPACE, text: ) spaces:" "
+          CSharpTokenType+RbraceTokenElement(type:RBRACE, text:})
+        Whitespace(type:WHITE_SPACE, text: ) spaces:" "
+        CSharpTokenType+RbraceTokenElement(type:RBRACE, text:})
+      Whitespace(type:WHITE_SPACE, text: ) spaces:" "
+      CSharpTokenType+RbraceTokenElement(type:RBRACE, text:})
+    ErrorElement:Expected '}'
+
