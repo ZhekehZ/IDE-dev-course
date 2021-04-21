@@ -43,16 +43,13 @@ namespace JetBrains.ReSharper.Plugins.Spring
             var builder = new PsiBuilder(_myLexer, SpringFileNodeType.Instance, new TokenFactory(), def.Lifetime);
             var fileMark = builder.Mark();
 
-            while (!builder.Eof() && (builder.GetTokenType().IsWhitespace || builder.GetTokenType().IsComment)) 
-                builder.AdvanceLexer();
-            if (!builder.Eof())
-            {
-                Seq(_statement, O_DOT)(builder);
-            }
+            SkipCommentsAndWhitespaces(builder);
+            Seq(_statement, O_DOT)(builder);
+            SkipCommentsAndWhitespaces(builder);
 
             if (!builder.Eof())
             {
-                // builder.Error("Text After Eof");
+                builder.Error("Text After '.'");
                 while (!builder.Eof())
                 {
                     Next(builder);                    

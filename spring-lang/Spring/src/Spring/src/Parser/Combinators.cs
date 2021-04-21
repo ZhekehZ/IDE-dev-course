@@ -26,6 +26,11 @@ namespace JetBrains.ReSharper.Plugins.Spring.Parser
         public static void Next(PsiBuilder builder)
         {
             if (!builder.Eof()) builder.AdvanceLexer();
+            SkipCommentsAndWhitespaces(builder);
+        }
+
+        public static void SkipCommentsAndWhitespaces(PsiBuilder builder)
+        {
             while (!builder.Eof() && (builder.GetTokenType().IsWhitespace || builder.GetTokenType().IsComment))
             {
                 builder.AdvanceLexer();
