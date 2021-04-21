@@ -15,3 +15,9 @@
     - Comments
     - Numbers
     - Identifiers
+
+* [spring-lang](https://github.com/ZhekehZ/IDE-dev-course/tree/master/spring-lang) --- Pascal parser based on simple Rider "spring" plugin  
+    Example:
+
+https://user-images.githubusercontent.com/14273096/115615897-32096e00-a2f8-11eb-9bc1-66c21a7b0d4f.mp4
+
