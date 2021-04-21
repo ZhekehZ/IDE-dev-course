@@ -40,5 +40,6 @@ namespace JetBrains.ReSharper.Plugins.Spring
         {
             return tokenType.IsKeyword;
         }
+        
     }
 }

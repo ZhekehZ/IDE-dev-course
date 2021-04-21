@@ -20,7 +20,8 @@ namespace JetBrains.ReSharper.Plugins.Spring
         public static readonly SpringTokenType INTEGER = new("INTEGER", 8);
         public static readonly SpringTokenType REAL = new("REAL", 9);
         public static readonly SpringTokenType WHITE = new("WHITE", 10);
-        public static readonly SpringTokenType ERROR = new("ERROR", 11);
+        public static readonly SpringTokenType ASM_TEXT = new("ASM_TEXT", 11);
+        public static readonly SpringTokenType ERROR = new("ERROR", 12);
 
         private SpringTokenType(string s, int index, string representation="") : base(s, index)
         {
@@ -35,7 +36,7 @@ namespace JetBrains.ReSharper.Plugins.Spring
 
         public override bool IsWhitespace => this == WHITE;
         public override bool IsComment => this == BCOMMENT || this == PCOMMENT || this == LCOMMENT;
-        public override bool IsStringLiteral => this == STRING;
+        public override bool IsStringLiteral => this == STRING || this == ASM_TEXT;
         public override bool IsConstantLiteral => this == INTEGER || this == REAL;
         public override bool IsIdentifier => this == IDENTIFIER;
         public override bool IsKeyword => this == KEYWORD;

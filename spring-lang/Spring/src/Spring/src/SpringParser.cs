@@ -5,10 +5,13 @@ using JetBrains.DocumentModel;
 using JetBrains.Lifetimes;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Daemon.CSharp.Errors;
+using JetBrains.ReSharper.Daemon.Css.Stages;
+using JetBrains.ReSharper.Daemon.VisualElements;
 using JetBrains.ReSharper.Feature.Services.Daemon;
 using JetBrains.ReSharper.Feature.Services.SelectEmbracingConstruct;
 using JetBrains.ReSharper.I18n.Services.Daemon;
 using JetBrains.ReSharper.Psi;
+using JetBrains.ReSharper.Psi.CSharp.Impl.Resolve.Filters;
 using JetBrains.ReSharper.Psi.ExtensionsAPI.Tree;
 using JetBrains.ReSharper.Psi.Files;
 using JetBrains.ReSharper.Psi.Parsing;
@@ -108,9 +111,14 @@ namespace JetBrains.ReSharper.Plugins.Spring
             var asmStmt = Seq(KwAsm,
                 b =>
                 {
+                    var m = b.Mark();
                     while (!b.Eof())
                     {
-                        if (b.GetTokenType() == KEYWORD && b.GetTokenText() == "end") return true;
+                        if (b.GetTokenType() == KEYWORD && b.GetTokenText() == "end")
+                        {
+                            b.AlterToken(m, ASM_TEXT);
+                            return true;
+                        }
                         Next(b);
                     }
                     b.Error("end expected");

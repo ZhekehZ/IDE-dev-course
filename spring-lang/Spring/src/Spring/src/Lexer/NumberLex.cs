@@ -49,8 +49,8 @@ namespace JetBrains.ReSharper.Plugins.Spring.Lexer
             {
                 var startSequence = ++pos;
                 while (pos < len && IsDigit(s[pos])) pos++;
-                if (startSequence >= pos) 
-                    return Fail("There must be at least one digit after the " + RealDelimiter, startSequence);
+                if (startSequence >= pos)
+                    return Success(s, startPosition, startSequence - 1, TokenType.Integer);
                 tokenType = TokenType.Real;
             }
 
