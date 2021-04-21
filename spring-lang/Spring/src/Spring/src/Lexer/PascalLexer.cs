@@ -7,7 +7,6 @@ namespace JetBrains.ReSharper.Plugins.Spring.Lexer
 {
     public class PascalLexer : Psi.Parsing.ILexer
     {
-        private readonly IBuffer _buffer;
         private readonly string _text;
         private int _startPos;
         private int _pos;
@@ -27,7 +26,7 @@ namespace JetBrains.ReSharper.Plugins.Spring.Lexer
         
         public PascalLexer([NotNull] IBuffer buffer)
         {
-            _buffer = buffer;
+            Buffer = buffer;
             _text = buffer.GetText();
         }
 
@@ -45,7 +44,7 @@ namespace JetBrains.ReSharper.Plugins.Spring.Lexer
                 _token = tok.Go(_text, _pos);
                 if (_token.Status == Status.Ok) break;
             }
-            _pos = _token.EndPosition == _pos && _pos < _buffer.Length? _pos + 1 : _token.EndPosition;
+            _pos = _token.EndPosition == _pos && _pos < Buffer.Length? _pos + 1 : _token.EndPosition;
         }
 
         public object CurrentPosition
@@ -121,6 +120,6 @@ namespace JetBrains.ReSharper.Plugins.Spring.Lexer
             }
         }
 
-        public IBuffer Buffer => _buffer;
+        public IBuffer Buffer { get; }
     }
 }

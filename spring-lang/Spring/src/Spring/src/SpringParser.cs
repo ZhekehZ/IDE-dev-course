@@ -10,6 +10,7 @@ using JetBrains.ReSharper.Daemon.VisualElements;
 using JetBrains.ReSharper.Feature.Services.Daemon;
 using JetBrains.ReSharper.Feature.Services.SelectEmbracingConstruct;
 using JetBrains.ReSharper.I18n.Services.Daemon;
+using JetBrains.ReSharper.Plugins.Spring.Parser;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp.Impl.Resolve.Filters;
 using JetBrains.ReSharper.Psi.ExtensionsAPI.Tree;
@@ -29,7 +30,7 @@ namespace JetBrains.ReSharper.Plugins.Spring
     internal class SpringParser : IParser
     {
         private readonly ILexer _myLexer;
-        private readonly Func<PsiBuilder, bool> statement = StatementParser();
+        private readonly Parser.Parser _statement = StatementParser();
         
         public SpringParser(ILexer lexer)
         {
@@ -46,12 +47,12 @@ namespace JetBrains.ReSharper.Plugins.Spring
                 builder.AdvanceLexer();
             if (!builder.Eof())
             {
-                statement(builder);
+                Seq(_statement, O_DOT)(builder);
             }
 
             if (!builder.Eof())
             {
-                builder.Error("Invalid statement");
+                // builder.Error("Text After Eof");
                 while (!builder.Eof())
                 {
                     Next(builder);                    
@@ -63,91 +64,98 @@ namespace JetBrains.ReSharper.Plugins.Spring
             return file;
         }
 
-        private static Func<PsiBuilder, bool> ExpressionParser()
+        private static Parser.Parser ExpressionParser()
         {
-            Func<PsiBuilder, bool> expression = null;
+            Parser.Parser expression = null;
             // ReSharper disable once AccessToModifiedClosure
             // ReSharper disable once PossibleNullReferenceException
-            bool Expr(PsiBuilder b) => expression(b); // for recursive calls
+            var expr = new Parser.Parser(b => expression(b)); // for recursive calls
 
-            Func<PsiBuilder, bool> factor = null;
+            Parser.Parser factor = null;
             // ReSharper disable once AccessToModifiedClosure
             // ReSharper disable once PossibleNullReferenceException
-            bool Fact(PsiBuilder b) => factor(b); // for recursive calls
-            
-            var constant = Alt(TInt, TStr, TIdent, KwNil, TReal);
-            
-            factor = AltForce(
-                Seq(OPOpen, Expr, OPClose),
-                Seq(TIdent, OptForce("Expression list expected", Seq(OPOpen, Many(Expr, OComma), OPClose))),
-                constant,
-                Seq(OAt, TIdent),
-                Seq(OBOpen, Many(Seq(Expr, OptForce("Expression expected after ..", Seq(ODots, Expr))), OComma), OBClose),
-                Seq(KwNot, Fact),
-                Seq(OPlus, Fact),
-                Seq(OMinus, Fact)
+            var fact = new Parser.Parser(b => factor(b)); // for recursive calls
+
+            factor = AltStrong(
+                "Expression expected",
+                Seq(O_POPEN, expr, O_PCLOSE),
+                Seq(O_AT, TOK_IDENT),
+                Seq(O_BOPEN, Many(Seq(expr, OptStrong("Expression expected after ..", Seq(O_DOTS, expr))), O_COMMA), O_BCLOSE),
+                Seq(O_PLUS, fact),
+                Seq(O_MINUS, fact),
+                Seq(TOK_IDENT, OptStrong("Expression list expected", Seq(O_POPEN, Many(expr, O_COMMA), O_PCLOSE))),
+                Seq(KW_NOT, fact),
+                Alt(TOK_INT, TOK_STR, KW_NIL, TOK_REAL)
             );
 
-            var term = ManyForce("Operand expected", factor, Alt(OMult, ODiv, KwDiv, KwMod, KwAnd, KwShl, KwShr, KwAs), true);
-            var simpleExpr = ManyForce("Operand expected", term, Alt(OPlus, OMinus, KwOr, KwXor), true);
-            expression = ManyForce("Operand expected", simpleExpr, Alt(OLt, OGt, OLe, OGe, OEq, ONeq, KwIn, KwIs));
+            var term = Many(factor, Alt(O_MULT, O_DIV, KW_DIV, KW_MOD, KW_AND, KW_SHL, KW_SHR, KW_AS), true,
+                true, true, "Operand expected");
+            var simpleExpr = Many(term, Alt(O_PLUS, O_MINUS, KW_OR, KW_XOR), true,
+                true, true, "Operand expected");
+            expression = Many(simpleExpr, Alt(O_LT, O_GT, O_LE, O_GE, O_EQ, O_NEQ, KW_IN, KW_IS), true,
+                true, true, "Operand expected");
             
             return expression;
         }
 
-        private static Func<PsiBuilder, bool> StatementParser()
+        private static Parser.Parser StatementParser()
         {
-            Func<PsiBuilder, bool> statement = null;
+            Parser.Parser statement = null;
             // ReSharper disable once AccessToModifiedClosure
             // ReSharper disable once PossibleNullReferenceException
-            bool Stmt(PsiBuilder b) => statement(b); // for recursive calls
+            var stmt = new Parser.Parser(b => statement(b)); // for recursive calls
             var expression = ExpressionParser();
             
-            var identStmt = Seq(TIdent, 
-                AltForce(Seq(OPOpen, Many(expression, OComma), OPClose),
-                         Seq(Alt(OAssign, OAsgMns, OAsgPls, OAsgMul, OAsgDiv), expression)));
-            var gotoStmt = Seq(KwGoto, TIdent);
+            var identStmt = Seq(TOK_IDENT, 
+                AltStrong(Seq(O_POPEN, Many(expression, O_COMMA), O_PCLOSE),
+                         Seq(Alt(O_ASSIGN, O_ASG_MNS, O_ASG_PLS, O_ASG_MUL, O_ASG_DIV), expression)));
+            var gotoStmt = Seq(KW_GOTO, TOK_IDENT);
 
-            var asmStmt = Seq(KwAsm,
+            var asmStmt = Seq(KW_ASM,
                 b =>
                 {
-                    var m = b.Mark();
+                    var start = b.Mark();
+                    var initialOffset = b.GetTokenOffset();
+                    
                     while (!b.Eof())
                     {
                         if (b.GetTokenType() == KEYWORD && b.GetTokenText() == "end")
                         {
-                            b.AlterToken(m, ASM_TEXT);
-                            return true;
+                            b.AlterToken(start, ASM_TEXT);
+                            return new ParserResult(true, b.GetTokenOffset() - initialOffset);
                         }
                         Next(b);
                     }
+                    
                     b.Error("end expected");
-                    return false;
-                }, KwEnd, OptForce("At least one string argument expected", 
-                                        Seq(OBOpen, Many(TStr, OComma, true), OBClose)));
+                    b.Done(start, SpringCompositeNodeType.BLOCK, null);
+                    return new ParserResult(false, b.GetTokenOffset() - initialOffset);
+                }, KW_END, OptStrong("At least one string argument expected", 
+                                        Seq(O_BOPEN, Many(TOK_STR, O_COMMA, true), O_BCLOSE)));
 
-            var withStmt = Seq(KwWith, Many(TIdent, OComma, true), KwDo, Stmt);
-            var whileStmt = Seq(KwWhile, expression, KwDo, Stmt);
-            var repeatStmt = Seq(KwRepeat, Many(Stmt, OSemic, true), KwUntil, expression);
+            var withStmt = Seq(KW_WITH, Many(TOK_IDENT, O_COMMA, true), KW_DO, stmt);
+            var whileStmt = Seq(KW_WHILE, expression, KW_DO, stmt);
+            var repeatStmt = Seq(KW_REPEAT, Many(stmt, O_SEMIC, true), KW_UNTIL, expression);
 
             var forStmt = Seq(
-                KwFor, TIdent, 
-                AltForce(Seq(OAssign, expression, Alt(KwTo, KwDownto), expression),Seq(KwIn, expression)),
-                KwDo, Stmt
+                KW_FOR, TOK_IDENT, 
+                AltStrong(Seq(O_ASSIGN, expression, Alt(KW_TO, KW_DOWNTO), expression),Seq(KW_IN, expression)),
+                KW_DO, stmt
             );
-            var ifStmt = Seq(KwIf, expression, KwThen, Stmt, OptForce("Invalid else statement", Seq(KwElse, Stmt)));
+            var ifStmt = Seq(KW_IF, expression, KW_THEN, stmt, OptStrong("Invalid else statement", Seq(KW_ELSE, stmt)));
 
-            var constant = Alt(TStr, TInt, TIdent);
+            var constant = Alt(TOK_STR, TOK_INT, TOK_IDENT);
             var caseStmt = Seq(
-                KwCase, expression, KwOf,
-                Many(Seq(Many(Seq(constant, OptForce("constant expected after ..", Seq(ODots, constant))), OComma, true), 
-                    OColon, Stmt), OSemic, true),
-                Opt(OSemic), OptForce("Invalid else statement list", Seq(Alt(KwElse, KwOtherwise), Many(Stmt, OSemic))),
-                Opt(OSemic), KwEnd
+                KW_CASE, expression, KW_OF,
+                Many(Seq(Many(Seq(constant, OptStrong("constant expected after ..", Seq(O_DOTS, constant))), O_COMMA, true), 
+                    O_COLON, stmt), O_SEMIC, true),
+                Opt(O_SEMIC), OptStrong("Invalid else statement list", Seq(Alt(KW_ELSE, KW_OTHERWISE), Many(stmt, O_SEMIC))),
+                Opt(O_SEMIC), KW_END
             );
-            var compound = Seq(KwBegin, Many(Stmt, OSemic), Opt(OSemic), KwEnd);
+            var compound = Seq(KW_BEGIN, Many(stmt, O_SEMIC), Opt(O_SEMIC), KW_END);
 
-            statement = AltForce(compound, ifStmt, repeatStmt, whileStmt, withStmt, asmStmt, gotoStmt, forStmt, caseStmt, identStmt);
+            statement = AltStrong(compound, ifStmt, repeatStmt, whileStmt, withStmt, asmStmt, gotoStmt, 
+                forStmt, caseStmt, identStmt);
 
             return statement;
         }
@@ -179,6 +187,12 @@ namespace JetBrains.ReSharper.Plugins.Spring
                     if (treeNode is PsiBuilderErrorElement error)
                     {
                         var range = error.GetDocumentRange();
+                        
+                        if (range.IsEmpty)
+                        {
+                            var newRange = range.ExtendRight(1);
+                            range = myFile.GetDocumentRange().Contains(newRange) ? newRange : range;
+                        }
                         highlightings.Add(new HighlightingInfo(range, new CSharpSyntaxError(error.ErrorDescription, range)));
                     }
                 }
