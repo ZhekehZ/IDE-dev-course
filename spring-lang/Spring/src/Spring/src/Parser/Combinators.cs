@@ -1,8 +1,8 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.ReSharper.Psi.Parsing;
 using JetBrains.ReSharper.Psi.TreeBuilder;
+using static JetBrains.ReSharper.Plugins.Spring.SpringCompositeNodeType;
 using static JetBrains.ReSharper.Plugins.Spring.SpringTokenType;
 
 
@@ -19,8 +19,9 @@ namespace JetBrains.ReSharper.Plugins.Spring.Parser
             Length = length;
         }
     }
+
     public delegate ParserResult Parser(PsiBuilder builder);
-    
+
     internal static class Combinators
     {
         public static void Next(PsiBuilder builder)
@@ -47,22 +48,33 @@ namespace JetBrains.ReSharper.Plugins.Spring.Parser
             {
                 var start = builder.Mark();
                 var initialOffset = builder.GetTokenOffset();
-                
+
                 if (elems.Any(elem => !elem(builder).Ok))
                 {
-                    builder.Done(start, SpringCompositeNodeType.BLOCK, null);
+                    builder.Done(start, BLOCK, null);
                     return new ParserResult(false, builder.GetTokenOffset() - initialOffset);
                 }
 
-                builder.Done(start, SpringCompositeNodeType.BLOCK, null);
+                builder.Done(start, BLOCK, null);
                 return new ParserResult(true, builder.GetTokenOffset() - initialOffset);
+            };
+        }
+
+        public static Parser Mark(SpringCompositeNodeType tokenType, Parser parser)
+        {
+            return builder =>
+            {
+                var m = builder.Mark();
+                var res = parser(builder);
+                builder.Done(m, tokenType, null);
+                return res;
             };
         }
 
         public static Parser Alt(params Parser[] alternatives) => Alt(null, false, alternatives);
         public static Parser AltStrong(params Parser[] alternatives) => Alt(null, true, alternatives);
         public static Parser AltStrong(string err, params Parser[] alternatives) => Alt(err, true, alternatives);
-        
+
         private static Parser Alt(string err, bool strong, IReadOnlyList<Parser> alternatives)
         {
             return builder =>
@@ -71,14 +83,14 @@ namespace JetBrains.ReSharper.Plugins.Spring.Parser
 
                 var best = 0;
                 var bestLen = 0;
-                
+
                 for (var i = 0; i < alternatives.Count; i++)
                 {
                     var result = alternatives[i](builder);
-                    
+
                     if (result.Ok || strong && result.Length > 0)
                     {
-                        builder.Done(start, SpringCompositeNodeType.BLOCK, null);
+                        builder.Done(start, BLOCK, null);
                         return result;
                     }
 
@@ -87,16 +99,20 @@ namespace JetBrains.ReSharper.Plugins.Spring.Parser
                         bestLen = builder.GetTokenOffset();
                         best = i;
                     }
+
                     builder.RollbackTo(start);
                     start = builder.Mark();
                 }
 
                 var bestRes = alternatives[best](builder);
-                if (err != null) builder.Error(start, err);
+                if (err != null)
+                    builder.Error(start, err);
+                else
+                    builder.Done(start, BLOCK, null);
                 return bestRes;
             };
         }
-        
+
         public static Parser Opt(Parser arg) => Opt("", false, arg);
         public static Parser OptStrong(string error, Parser arg) => Opt(error, true, arg);
 
@@ -113,18 +129,24 @@ namespace JetBrains.ReSharper.Plugins.Spring.Parser
                     builder.Drop(start); // remove mark
                     return result;
                 }
-                
-                if (strong && result.Length > 0) { // if strong and at least one token parsed
+
+                if (strong && result.Length > 0)
+                {
+                    // if strong and at least one token parsed
                     builder.Error(start, error);
                     return result;
                 }
-                
+
                 builder.RollbackTo(start); // if failed and not strong, rollback changes
                 return new ParserResult(true, 0);
             };
         }
-        
-        public static Parser Tok(TokenNodeType tt, string text = null)
+
+        public static Parser Tok(
+            TokenNodeType tt,
+            string text = null,
+            SpringCompositeNodeType type = null
+        )
         {
             return builder =>
             {
@@ -134,7 +156,7 @@ namespace JetBrains.ReSharper.Plugins.Spring.Parser
                     return new ParserResult(false, 0);
                 }
 
-                
+
                 if (tt != builder.GetTokenType())
                 {
                     builder.Error((text ?? tt.ToString()) + " expected + got " + builder.GetTokenType());
@@ -145,23 +167,28 @@ namespace JetBrains.ReSharper.Plugins.Spring.Parser
                 {
                     if (builder.GetTokenText().ToLower() != text)
                     {
-                        builder.Error(text + " expected " + " got " + builder.GetTokenText().ToLower() );
+                        builder.Error(text + " expected " + " got " + builder.GetTokenText().ToLower());
                         return new ParserResult(false, 0);
                     }
                 }
-                
+
                 var initialOffset = builder.GetTokenOffset();
-                Next(builder);
+                var marker = builder.Mark();
+
+                builder.AdvanceLexer();
+                builder.Done(marker, type ?? BLOCK, null);
+                SkipCommentsAndWhitespaces(builder);
+
                 return new ParserResult(true, builder.GetTokenOffset() - initialOffset);
             };
         }
-        
+
         public static Parser Many(
-            Parser elem, 
-            Parser delimiter, 
-            bool atLeastOne = false, 
-            bool strong = false, 
-            bool strongDelim = false, 
+            Parser elem,
+            Parser delimiter = null,
+            bool atLeastOne = false,
+            bool strong = false,
+            bool strongDelim = false,
             string err = null
         )
         {
@@ -172,14 +199,14 @@ namespace JetBrains.ReSharper.Plugins.Spring.Parser
                 var initialOffset = builder.GetTokenOffset();
 
                 var expectElement = atLeastOne;
-                
+
                 while (true)
                 {
                     var result = elem(builder); // parse item
-                    
+
                     if (result.Ok) // if success
                     {
-                        builder.Drop(afterLastElement);    // re-create mark
+                        builder.Drop(afterLastElement); // re-create mark
                         afterLastElement = builder.Mark();
 
                         var beforeDelimiter = builder.Mark();
@@ -189,6 +216,7 @@ namespace JetBrains.ReSharper.Plugins.Spring.Parser
                             builder.Drop(afterLastElement);
                             break; // go to finish
                         }
+
                         builder.Drop(beforeDelimiter); // delimiter parsed successfully
 
                         expectElement = strongDelim; // if message is set, then element is expected
@@ -196,8 +224,11 @@ namespace JetBrains.ReSharper.Plugins.Spring.Parser
                     }
                     else // if failed
                     {
-                        builder.RollbackTo(afterLastElement); // rollback to last good position
-                        
+                        if (strong && result.Length > 0)
+                            builder.Done(afterLastElement, BLOCK, null);
+                        else
+                            builder.RollbackTo(afterLastElement); // rollback to last good position
+
                         if (expectElement || atLeastOne)
                         {
                             if (atLeastOne)
@@ -205,7 +236,7 @@ namespace JetBrains.ReSharper.Plugins.Spring.Parser
                                 builder.Error(start, "At least one element expected");
                                 return result;
                             }
-                            
+
                             builder.Error(start, err ?? "Error");
                             return result;
                         }
@@ -215,13 +246,13 @@ namespace JetBrains.ReSharper.Plugins.Spring.Parser
                             builder.Error(start, "At least one element expected");
                             return result;
                         }
-                        
+
                         // if next token is not an element and it's ok
                         break;
                     }
                 }
-                
-                builder.Done(start, SpringCompositeNodeType.BLOCK, null);
+
+                builder.Done(start, BLOCK, null);
                 return new ParserResult(true, builder.GetTokenOffset() - initialOffset);
             };
         }

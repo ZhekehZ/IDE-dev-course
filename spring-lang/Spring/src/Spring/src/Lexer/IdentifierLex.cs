@@ -16,9 +16,15 @@ namespace JetBrains.ReSharper.Plugins.Spring.Lexer
             {
                 return Fail("Identifier must start with [a-zA-Z_]", startPosition);
             }
-            while (++pos < len && (IsLetter(s[pos]) || IsDigit(s[pos]) || s[pos] == Underscore)) {}
-            return Success(s, startPosition, pos, 
-                s[startPosition] == ReservedOverrideSymbol ? TokenType.ReservedIdentifierOverriding : TokenType.Identifier);
+
+            while (++pos < len && (IsLetter(s[pos]) || IsDigit(s[pos]) || s[pos] == Underscore))
+            {
+            }
+
+            return Success(s, startPosition, pos,
+                s[startPosition] == ReservedOverrideSymbol
+                    ? TokenType.ReservedIdentifierOverriding
+                    : TokenType.Identifier);
         }
     }
 }

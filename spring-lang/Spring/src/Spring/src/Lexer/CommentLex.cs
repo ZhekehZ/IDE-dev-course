@@ -12,9 +12,9 @@ namespace JetBrains.ReSharper.Plugins.Spring.Lexer
         {
             var pos = startPosition;
             var len = s.Length;
-            
+
             if (pos >= len) return Fail("Start position is out of string", pos);
-            
+
             Stack<TokenBuilder> stack = new(); // For nested comments
 
             if (!CommentStartSymbols.Contains(s[pos]))
@@ -27,8 +27,9 @@ namespace JetBrains.ReSharper.Plugins.Spring.Lexer
                 if (++pos >= len || s[pos] != LineComment) return Fail("Invalid comment", startPosition, pos);
                 stack.Push(new TokenBuilder(s, startPosition, TokenType.CommentLine));
             }
+
             pos--;
-            
+
             while (++pos < len)
             {
                 switch (s[pos])
@@ -38,9 +39,11 @@ namespace JetBrains.ReSharper.Plugins.Spring.Lexer
                         continue;
                     case CommentBiOpen1: // (* comment *)
                         if (++pos >= len) continue;
-                        if (s[pos] == CommentBiOpen2) {
+                        if (s[pos] == CommentBiOpen2)
+                        {
                             stack.Push(new TokenBuilder(s, pos - 1, TokenType.CommentBi));
-                        }  
+                        }
+
                         if (stack.Count == 0) return Fail("Not a comment", startPosition, pos);
                         continue;
                     case CommentBraceClose:
@@ -62,7 +65,7 @@ namespace JetBrains.ReSharper.Plugins.Spring.Lexer
                         var tok = stack.Pop().Build(pos + 1);
                         if (stack.Count == 0) return tok;
                         stack.Peek().AddToken(tok);
-                        continue;     
+                        continue;
                 }
             }
 
@@ -71,9 +74,9 @@ namespace JetBrains.ReSharper.Plugins.Spring.Lexer
 
             BuildFailReport:
             if (stack.Count == 0) return Fail("Is not a comment", startPosition, pos);
-            
-            
-            var level = 0; 
+
+
+            var level = 0;
             var sb = new StringBuilder("Comment error\n");
             foreach (var tok in stack.Reverse())
             {

@@ -8,9 +8,9 @@ namespace JetBrains.ReSharper.Plugins.Spring
     {
         public override ErrorStripeRequest InitialErrorStripe(IPsiSourceFile sourceFile)
         {
-            return sourceFile.Properties.ShouldBuildPsi ? 
-                ErrorStripeRequest.STRIPE_AND_ERRORS :
-                ErrorStripeRequest.NONE;
+            return sourceFile.Properties.ShouldBuildPsi
+                ? ErrorStripeRequest.STRIPE_AND_ERRORS
+                : ErrorStripeRequest.NONE;
         }
     }
 }

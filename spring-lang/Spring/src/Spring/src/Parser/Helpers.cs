@@ -1,5 +1,3 @@
-using System;
-using JetBrains.ReSharper.Psi.TreeBuilder;
 using static JetBrains.ReSharper.Plugins.Spring.Parser.Combinators;
 using static JetBrains.ReSharper.Plugins.Spring.SpringTokenType;
 
@@ -42,6 +40,17 @@ namespace JetBrains.ReSharper.Plugins.Spring.Parser
         public static readonly Parser KW_NIL = KeyWord("nil");
         public static readonly Parser KW_IS = KeyWord("is");
         public static readonly Parser KW_NOT = KeyWord("not");
+        public static readonly Parser KW_PROCEDURE = KeyWord("procedure");
+        public static readonly Parser KW_FORWARD = KeyWord("forward");
+        public static readonly Parser KW_ARRAY = KeyWord("array");
+        public static readonly Parser KW_CONST = KeyWord("const");
+        public static readonly Parser KW_VAR = KeyWord("var");
+        public static readonly Parser KW_OUT = KeyWord("out");
+        public static readonly Parser KW_ABSOLUTE = KeyWord("absolute");
+        public static readonly Parser KW_EXPORT = KeyWord("export");
+        public static readonly Parser KW_CVAR = KeyWord("cvar");
+        public static readonly Parser KW_EXTERNAL = KeyWord("external");
+        public static readonly Parser KW_NAME = KeyWord("name");
     }
 
     public static class OperatorsAndSymbols
@@ -62,7 +71,7 @@ namespace JetBrains.ReSharper.Plugins.Spring.Parser
         public static readonly Parser O_BCLOSE = Sym("]");
         public static readonly Parser O_AT = Sym("@");
         public static readonly Parser O_DOT = Sym(".");
-        
+
         public static readonly Parser O_ASSIGN = SymPair(":=");
         public static readonly Parser O_ASG_MUL = SymPair("*=");
         public static readonly Parser O_ASG_DIV = SymPair("/=");
@@ -80,6 +89,7 @@ namespace JetBrains.ReSharper.Plugins.Spring.Parser
         public static readonly Parser TOK_INT = Tok(INTEGER);
         public static readonly Parser TOK_REAL = Tok(REAL);
         public static readonly Parser TOK_STR = Tok(STRING);
-        public static readonly Parser TOK_IDENT = Tok(IDENTIFIER);
+
+        public static readonly Parser TOK_IDENT = Tok(IDENTIFIER, null, SpringCompositeNodeType.REFERENCE);
     }
 }

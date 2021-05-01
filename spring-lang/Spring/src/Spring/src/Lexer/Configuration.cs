@@ -9,7 +9,7 @@ namespace JetBrains.ReSharper.Plugins.Spring.Lexer
         {
             "<<", ">>", "**", "<>", "><", "<=", ">=", ":=", "+=", "-=", "*=", "/=", "(*", "*)", "(.", ".)", "//", ".."
         };
-        
+
         public static bool IsLetter(char c) => 'a' <= c && c <= 'z' || 'A' <= c && c <= 'Z';
         public static bool IsDigit(char c) => '0' <= c && c <= '9';
         public static bool IsSpecial(char c) => "+-*/=<>[].,():;^@".Contains(c);
@@ -20,10 +20,10 @@ namespace JetBrains.ReSharper.Plugins.Spring.Lexer
         public static bool IsBinDit(char c) => c == '0' || c == '1';
         public static bool IsSign(char c) => c == '+' || c == '-';
         public static bool IsExpScale(char c) => c == 'e' || c == 'E';
-        
-        
+
+
         public static bool IsCommentBanned(char c) => c == '\n' || c == '\r';
-        
+
         public const char Underscore = '_';
         public const char ReservedOverrideSymbol = '&';
         public const char HexPrefix = '$';
@@ -44,11 +44,13 @@ namespace JetBrains.ReSharper.Plugins.Spring.Lexer
         public const string CommentStartSymbols = "({/";
         public const string WhiteSpaceChars = " \t\n\r";
 
-        public static readonly List<string> Keywords = new() {
-            "goto", "label", "begin", "end", "case", "of", "else", "otherwise", "if", "then", 
-            "for", "to", "downto", "do", "in", "repeat", "until", "while", "with", "raise", 
+        public static readonly List<string> Keywords = new()
+        {
+            "goto", "label", "begin", "end", "case", "of", "else", "otherwise", "if", "then",
+            "for", "to", "downto", "do", "in", "repeat", "until", "while", "with", "raise",
             "try", "except", "finally", "asm", "div", "mod", "and", "shl", "shr", "as", "or",
-            "xor", "nil", "not", "is"
+            "xor", "nil", "not", "is", "procedure", "forward", "array", "const", "var", "out",
+            "absolute", "export", "cvar", "external", "name"
         };
     }
 }

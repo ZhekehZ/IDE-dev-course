@@ -22,7 +22,8 @@ namespace JetBrains.ReSharper.Plugins.Spring
         {
         }
 
-        protected SpringProjectFileType(string name, string presentableName, IEnumerable<string> extensions) : base(name,
+        protected SpringProjectFileType(string name, string presentableName, IEnumerable<string> extensions) : base(
+            name,
             presentableName, extensions)
         {
         }

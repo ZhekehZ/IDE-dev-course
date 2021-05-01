@@ -2,9 +2,10 @@ namespace JetBrains.ReSharper.Plugins.Spring.Lexer
 {
     public enum Status
     {
-        Ok, Fail
+        Ok,
+        Fail
     }
-    
+
     public abstract class ALexerResult<T>
     {
         public abstract int StartPosition { get; }

@@ -23,7 +23,7 @@ namespace JetBrains.ReSharper.Plugins.Spring
         public static readonly SpringTokenType ASM_TEXT = new("ASM_TEXT", 11);
         public static readonly SpringTokenType ERROR = new("ERROR", 12);
 
-        private SpringTokenType(string s, int index, string representation="") : base(s, index)
+        private SpringTokenType(string s, int index, string representation = "") : base(s, index)
         {
             TokenRepresentation = representation;
         }
@@ -31,7 +31,7 @@ namespace JetBrains.ReSharper.Plugins.Spring
         public override LeafElementBase Create(IBuffer buffer, TreeOffset startOffset, TreeOffset endOffset)
         {
             return new Leaf(new StringBuffer(
-                    buffer.GetText().Substring(startOffset.Offset, endOffset.Offset - startOffset.Offset)), this);
+                buffer.GetText().Substring(startOffset.Offset, endOffset.Offset - startOffset.Offset)), this);
         }
 
         public override bool IsWhitespace => this == WHITE;

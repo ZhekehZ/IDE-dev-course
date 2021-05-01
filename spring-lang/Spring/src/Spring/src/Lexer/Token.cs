@@ -3,25 +3,24 @@ using System.Text;
 
 namespace JetBrains.ReSharper.Plugins.Spring.Lexer
 {
-
     public enum TokenType
     {
-        ExtraSymbol,                  // + * = ...
-        ExtraSymbolPair,              // += ++ ...
-        Comment,                      // { comment }
-        CommentBi,                    // (* comment *)
-        CommentLine,                  // // comment
-        String,                       // 'abc'#12'def'
-        Identifier,                   // abc
+        ExtraSymbol, // + * = ...
+        ExtraSymbolPair, // += ++ ...
+        Comment, // { comment }
+        CommentBi, // (* comment *)
+        CommentLine, // // comment
+        String, // 'abc'#12'def'
+        Identifier, // abc
         ReservedIdentifierOverriding, // &program
-        Integer,                      // 123
-        Real,                         // 123.456e789
-        HexInt,                       // $beef
-        OctInt,                       // &777
-        BinInt,                       // %101
-        White,                        // \t\n \r 
+        Integer, // 123
+        Real, // 123.456e789
+        HexInt, // $beef
+        OctInt, // &777
+        BinInt, // %101
+        White, // \t\n \r 
     }
-    
+
     public class Token : ALexerResult<string>
     {
         public override string ErrorMessage { get; }
@@ -36,10 +35,10 @@ namespace JetBrains.ReSharper.Plugins.Spring.Lexer
         public readonly List<Token> InnerTokens;
 
         private Token(
-            string originalString, 
-            int startPosition, 
-            int endPosition, 
-            TokenType type, 
+            string originalString,
+            int startPosition,
+            int endPosition,
+            TokenType type,
             List<Token> innerTokens = null,
             int parsedPos = -1)
         {
@@ -53,15 +52,15 @@ namespace JetBrains.ReSharper.Plugins.Spring.Lexer
         }
 
         public static Token Success(
-            string originalString, 
-            int startPosition, 
-            int endPosition, 
-            TokenType type, 
+            string originalString,
+            int startPosition,
+            int endPosition,
+            TokenType type,
             List<Token> innerTokens = null)
         {
             return new(originalString, startPosition, endPosition, type, innerTokens);
         }
-        
+
         public static Token Fail(string errorMessage, int pos, int parsedPos = -1)
         {
             parsedPos = parsedPos < 0 ? pos : parsedPos;
@@ -76,11 +75,11 @@ namespace JetBrains.ReSharper.Plugins.Spring.Lexer
         public string ToString(string prefix)
         {
             if (Status != Status.Ok) return "Token{ FAIL, pos=" + EndPosition + " message=" + ErrorMessage + " }";
-            
+
             var str = "Token{ OK, type=" + Type + " range=" + (StartPosition, EndPosition) + " str=" + Value + " }";
             if (InnerTokens.Count == 0) return str;
             var sb = new StringBuilder(str).AppendLine().Append(prefix + "Inner tokens:");
-            InnerTokens.ForEach( t => sb.AppendLine().Append(prefix + '\t').Append(t.ToString(prefix + '\t')) );
+            InnerTokens.ForEach(t => sb.AppendLine().Append(prefix + '\t').Append(t.ToString(prefix + '\t')));
             return sb.ToString();
         }
     }

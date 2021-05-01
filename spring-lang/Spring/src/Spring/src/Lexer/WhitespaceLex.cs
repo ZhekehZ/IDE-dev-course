@@ -8,9 +8,9 @@ namespace JetBrains.ReSharper.Plugins.Spring.Lexer
             var len = s.Length;
 
             while (pos < len && IConfiguration.WhiteSpaceChars.Contains(s[pos])) ++pos;
-            return pos == startPosition 
-                        ? Token.Fail("Empty string", pos) 
-                        : Token.Success(s, startPosition, pos, TokenType.White);
+            return pos == startPosition
+                ? Token.Fail("Empty string", pos)
+                : Token.Success(s, startPosition, pos, TokenType.White);
         }
     }
 }

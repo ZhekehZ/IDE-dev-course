@@ -18,12 +18,12 @@ namespace JetBrains.ReSharper.Plugins.Spring.Lexer
         private static readonly SymbolLex LexSymbol = new();
         private static readonly WhitespaceLex WhiteLex = new();
         private Token _token;
-        
+
         private readonly List<ILexer> _lexOrder = new()
         {
-            LexComment, LexString, LexIdentifier, LexNumber, LexSymbol, WhiteLex 
+            LexComment, LexString, LexIdentifier, LexNumber, LexSymbol, WhiteLex
         };
-        
+
         public PascalLexer([NotNull] IBuffer buffer)
         {
             Buffer = buffer;
@@ -44,7 +44,8 @@ namespace JetBrains.ReSharper.Plugins.Spring.Lexer
                 _token = tok.Go(_text, _pos);
                 if (_token.Status == Status.Ok) break;
             }
-            _pos = _token.EndPosition == _pos && _pos < Buffer.Length? _pos + 1 : _token.EndPosition;
+
+            _pos = _token.EndPosition == _pos && _pos < Buffer.Length ? _pos + 1 : _token.EndPosition;
         }
 
         public object CurrentPosition
@@ -52,7 +53,7 @@ namespace JetBrains.ReSharper.Plugins.Spring.Lexer
             get => _pos;
             set
             {
-                _startPos = (int) value; 
+                _startPos = (int) value;
                 _pos = _startPos;
             }
         }
@@ -66,7 +67,7 @@ namespace JetBrains.ReSharper.Plugins.Spring.Lexer
                 {
                     return _pos == _startPos ? null : SpringTokenType.ERROR;
                 }
-                
+
                 switch (_token.Type)
                 {
                     case Lexer.TokenType.ExtraSymbol:
@@ -82,8 +83,8 @@ namespace JetBrains.ReSharper.Plugins.Spring.Lexer
                     case Lexer.TokenType.String:
                         return SpringTokenType.STRING;
                     case Lexer.TokenType.Identifier:
-                        return IConfiguration.Keywords.Contains(_token.Result.ToLower()) 
-                            ? SpringTokenType.KEYWORD 
+                        return IConfiguration.Keywords.Contains(_token.Result.ToLower())
+                            ? SpringTokenType.KEYWORD
                             : SpringTokenType.IDENTIFIER;
                     case Lexer.TokenType.ReservedIdentifierOverriding:
                         return SpringTokenType.IDENTIFIER;
