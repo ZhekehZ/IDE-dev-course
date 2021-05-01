@@ -17,7 +17,9 @@
     - Identifiers
 
 * [spring-lang](https://github.com/ZhekehZ/IDE-dev-course/tree/master/spring-lang) --- Pascal parser based on simple Rider "spring" plugin  
-    Example:
-
-https://user-images.githubusercontent.com/14273096/115615897-32096e00-a2f8-11eb-9bc1-66c21a7b0d4f.mp4
+    Features:
+    - Syntax highlighting
+    - Goto declaration in prodecures  
+    Example:  
+![goto declaration](https://user-images.githubusercontent.com/14273096/116781434-85638500-aa8b-11eb-9c12-ea6afc2a19df.gif)
 
