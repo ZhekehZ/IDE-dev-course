@@ -19,7 +19,7 @@
 * [spring-lang](https://github.com/ZhekehZ/IDE-dev-course/tree/master/spring-lang) --- Pascal parser based on simple Rider "spring" plugin  
     Features:
     - Syntax highlighting
-    - Goto declaration in prodecures  
+    - Goto declaration in precedures  
     
   Example:  
 ![goto declaration](https://user-images.githubusercontent.com/14273096/116781434-85638500-aa8b-11eb-9c12-ea6afc2a19df.gif)
